@@ -1,0 +1,24 @@
+{% if documents %}
+<table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr style="background: #24AF84;">
+            <th style="color: white;">Файл</th>
+            <th style="color: white;">Дата</th>
+            <th style="color: white;">Чанков</th>
+            <th style="color: white;">Скачать</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for doc in documents %}
+        <tr>
+            <td>{{ doc.filename }}</td>
+            <td>{{ doc.uploaded_at|date:"d.m.Y H:i" }}</td>
+            <td>{{ doc.chunk_count }}</td>
+            <td><a href="{{ doc.file.url }}" style="color: #35348a;">⬇️ Скачать</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Пока не загружено ни одного документа.</p>
+{% endif %}

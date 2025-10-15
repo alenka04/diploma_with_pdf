@@ -1,0 +1,10 @@
+# Исключаем папку с данными Qdrant
+qdrant_data/
+
+# Также исключим другие временные/служебные папки
+venv/
+venv_django/
+__pycache__/
+*.log
+*.tmp
+*.lock

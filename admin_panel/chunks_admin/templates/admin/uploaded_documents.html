@@ -1,0 +1,82 @@
+
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Загрузка документов</h1>
+<p>Здесь можно загружать .docx-файлы. Текст будет разбит на чанки и добавлен в базу знаний.</p>
+
+{% if error %}
+<div style="color: red; margin-bottom: 20px;">
+    <strong>Ошибка:</strong> {{ error }}
+</div>
+{% endif %}
+
+<!-- Форма загрузки -->
+<div style="margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+    <h3>Загрузить новый документ</h3>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="document" accept=".docx" required />
+        <button type="submit" style="margin-top: 10px; background: #35348a; color: white; border: none; padding: 8px 16px; border-radius: 5px;">Загрузить</button>
+    </form>
+</div>
+
+<!-- Список загруженных файлов -->
+<h3>История загрузок</h3>
+{% if documents %}
+<table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr style="background: #24AF84;">
+            <th style="color: white;">Файл</th>
+            <th style="color: white;">Дата</th>
+            <th style="color: white;">Чанков</th>
+            <th style="color: white;">Скачать</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for doc in documents %}
+        <tr>
+            <td>{{ doc.filename }}</td>
+            <td>{{ doc.uploaded_at|date:"d.m.Y H:i" }}</td>
+            <td>{{ doc.chunk_count }}</td>
+            <td><a href="{{ doc.file.url }}" style="color: #35348a;">⬇Скачать</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Пока не загружено ни одного документа.</p>
+{% endif %}
+
+<br>
+<a href="{% url 'admin:chunks_admin_chunk_changelist' %}" style="color: #35348a;">← Назад к чанкам</a>
+
+
+<!-- AJAX -->
+<script>
+document.getElementById("upload-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const response = await fetch("{% url 'uploaded_documents_page' %}", {
+        method: "POST",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+        },
+        body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+        document.getElementById("document-table").innerHTML = data.html;
+        alert("✅ Документ успешно загружен!");
+        form.reset();
+    } else {
+        alert("❌ Ошибка: " + data.error);
+    }
+});
+</script>
+{% endblock %}
